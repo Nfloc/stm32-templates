@@ -20,11 +20,6 @@
 
 int main(void)
 {
-	ai_handle my_model = AI_HANDLE_NULL;
-    
-    ai_network_create(&my_model, AI_NETWORK_DATA_CONFIG);
-
-    ai_network_init(my_model, AI_NETWORK_DATA_CONFIG);
     /* Loop forever */
 	for(;;);
 }
