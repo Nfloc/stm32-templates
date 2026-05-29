@@ -16,44 +16,39 @@
  ******************************************************************************
  */
 
-#include <stdint.h>
 #include <stdio.h>
+#include <stdint.h>
 
+// Core ST EdgeAI 4.0 runtime API
+#include "stai.h" 
 #include "network.h"
 #include "network_data.h"
-#include "stai.h"
 
-uint8_t activations[39232];
-
-int main(void)
-{
-	stai_return_code status;
+int main(void) {
+    stai_return_code status;
     
-    // Allocate space for the model runtime context structure
-    // STAI provides a specific macro tailored to your model's required handle size
-    static uint8_t network_ctx_buffer[STAI_NETWORK_CTX_SIZE_BYTES];
+    // 1. Allocate space for the model runtime context structure using the local definition
+    static uint8_t network_ctx_buffer[AI_NETWORK_CTX_SIZE_BYTES];
     stai_network* network = (stai_network*)network_ctx_buffer;
 
-    // Point to your 159 KB weights array located in network_data.c
-    // This explicit reference is what stops the linker from deleting it!
+    // 2. Point to your 159 KB weights array located in network_data.c
     stai_ptr weights_buffer = (stai_ptr)g_network_weights_array;
 
-    // Initialize the network object container
-    status = stai_network_init(network, STAI_NETWORK_MODEL_SIGNATURE);
+    // 3. Initialize the network object container (Passing only the single context pointer argument)
+    status = stai_network_init(network);
     if (status != STAI_SUCCESS) {
-        // Initialization failed handle error
+        // Initialization failed
         while(1);
     }
 
-    // Bind weights to the initialized network context
+    // 4. Bind your 159 KB of weights to the initialized network context
     status = stai_network_set_weights(network, &weights_buffer, 1);
     if (status != STAI_SUCCESS) {
-        // Weights binding failed handle error
+        // Weights binding failed
         while(1);
     }
 
-    // 5. Setup runtime RAM activation buffers
-    // Your model requires 17,920 Bytes of RAM for activations
+    // 5. Setup your runtime RAM activation buffers (17,920 Bytes required)
     static uint8_t activation_buffer[17920] __attribute__((aligned(8)));
     stai_ptr act_ptr = (stai_ptr)activation_buffer;
     
@@ -62,10 +57,7 @@ int main(void)
         while(1);
     }
 
-    /* Model is now fully linked and loaded into memory!
-       Your binary size will jump to ~165 KB Flash and ~20 KB RAM.
-    */
-	while (1) {
-        // Application code / data ingestion loop
+    while (1) {
+        // Your main inference and pipeline code can now run here safely
     }
 }
