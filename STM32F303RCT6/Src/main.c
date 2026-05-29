@@ -28,8 +28,44 @@ uint8_t activations[39232];
 int main(void)
 {
 	stai_return_code status;
-	
-    while(1){
-        
+    
+    // Allocate space for the model runtime context structure
+    // STAI provides a specific macro tailored to your model's required handle size
+    static uint8_t network_ctx_buffer[STAI_NETWORK_CTX_SIZE_BYTES];
+    stai_network* network = (stai_network*)network_ctx_buffer;
+
+    // Point to your 159 KB weights array located in network_data.c
+    // This explicit reference is what stops the linker from deleting it!
+    stai_ptr weights_buffer = (stai_ptr)g_network_weights_array;
+
+    // Initialize the network object container
+    status = stai_network_init(network, STAI_NETWORK_MODEL_SIGNATURE);
+    if (status != STAI_SUCCESS) {
+        // Initialization failed handle error
+        while(1);
+    }
+
+    // Bind weights to the initialized network context
+    status = stai_network_set_weights(network, &weights_buffer, 1);
+    if (status != STAI_SUCCESS) {
+        // Weights binding failed handle error
+        while(1);
+    }
+
+    // 5. Setup runtime RAM activation buffers
+    // Your model requires 17,920 Bytes of RAM for activations
+    static uint8_t activation_buffer[17920] __attribute__((aligned(8)));
+    stai_ptr act_ptr = (stai_ptr)activation_buffer;
+    
+    status = stai_network_set_activations(network, &act_ptr, 1);
+    if (status != STAI_SUCCESS) {
+        while(1);
+    }
+
+    /* Model is now fully linked and loaded into memory!
+       Your binary size will jump to ~165 KB Flash and ~20 KB RAM.
+    */
+	while (1) {
+        // Application code / data ingestion loop
     }
 }
