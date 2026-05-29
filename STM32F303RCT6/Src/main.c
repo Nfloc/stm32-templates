@@ -20,6 +20,8 @@
 
 int main(void)
 {
+	ai_handle network;
+    ai_network_create(&network, AI_NETWORK_DATA_CONFIG);
     /* Loop forever */
 	for(;;);
 }
