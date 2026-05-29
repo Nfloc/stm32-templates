@@ -17,13 +17,19 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
+
 #include "network.h"
 #include "network_data.h"
+#include "stai.h"
 
 uint8_t activations[39232];
 
 int main(void)
 {
-    /* Loop forever */
-	for(;;);
+	stai_return_code status;
+	
+    while(1){
+        
+    }
 }
