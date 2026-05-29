@@ -15,7 +15,6 @@
  *
  ******************************************************************************
  */
-
 #include <stdio.h>
 #include <stdint.h>
 
@@ -27,32 +26,32 @@
 int main(void) {
     stai_return_code status;
     
-    // 1. Allocate space for the model runtime context structure using the local definition
-    static uint8_t network_ctx_buffer[AI_NETWORK_CTX_SIZE_BYTES];
+    // 1. Allocate space for the model runtime context structure using the exact macro from network.h
+    static uint8_t network_ctx_buffer[STAI_NETWORK_CONTEXT_SIZE];
     stai_network* network = (stai_network*)network_ctx_buffer;
 
-    // 2. Point to your 159 KB weights array located in network_data.c
+    // 2. Point to your weights array located in network_data.c
     stai_ptr weights_buffer = (stai_ptr)g_network_weights_array;
 
-    // 3. Initialize the network object container (Passing only the single context pointer argument)
+    // 3. Initialize the network object container
     status = stai_network_init(network);
     if (status != STAI_SUCCESS) {
         // Initialization failed
         while(1);
     }
 
-    // 4. Bind your 159 KB of weights to the initialized network context
-    status = stai_network_set_weights(network, &weights_buffer, 1);
+    // 4. Bind your model weights to the initialized network context
+    status = stai_network_set_weights(network, &weights_buffer, STAI_NETWORK_WEIGHTS_NUM);
     if (status != STAI_SUCCESS) {
         // Weights binding failed
         while(1);
     }
 
-    // 5. Setup your runtime RAM activation buffers (17,920 Bytes required)
-    static uint8_t activation_buffer[17920] __attribute__((aligned(8)));
+    // 5. Setup your runtime RAM activation buffers using the exact size macro (39232 bytes)
+    static uint8_t activation_buffer[STAI_NETWORK_ACTIVATIONS_SIZE_BYTES] __attribute__((aligned(STAI_NETWORK_CONTEXT_ALIGNMENT)));
     stai_ptr act_ptr = (stai_ptr)activation_buffer;
     
-    status = stai_network_set_activations(network, &act_ptr, 1);
+    status = stai_network_set_activations(network, &act_ptr, STAI_NETWORK_ACTIVATIONS_NUM);
     if (status != STAI_SUCCESS) {
         while(1);
     }
