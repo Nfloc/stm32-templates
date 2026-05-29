@@ -17,6 +17,10 @@
  */
 
 #include <stdint.h>
+#include <network.h>
+#include <network_data.h>
+
+uint8_t activations[39232];
 
 int main(void)
 {
