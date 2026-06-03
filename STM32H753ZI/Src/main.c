@@ -31,6 +31,23 @@
  * then it is already visible here.
  */
 
+
+// External declaration of your UART handle (CubeMX usually defines this in main.c or usart.c)
+extern UART_HandleTypeDef huart3; 
+
+/**
+ * @brief Redirects printf standard output to the UART peripheral.
+ * This function overrides the weak symbol used by the C standard library.
+ */
+int _write(int file, char *ptr, int len) {
+    // Transmit the string over UART3 (the default Virtual COM port for the NUCLEO-H753ZI)
+    // We use a generous timeout value (HAL_MAX_DELAY) to ensure messages aren't cut off
+    HAL_StatusTypeDef status = HAL_UART_Transmit(&huart3, (uint8_t*)ptr, len, HAL_MAX_DELAY);
+    
+    // Return the number of characters written if successful, or -1 on error
+    return (status == HAL_OK) ? len : -1;
+}
+
 int main(void) {
     stai_return_code status;
     
@@ -109,7 +126,7 @@ int main(void) {
     }
 
     // If you have implemented a custom _write() function to override printf to UART:
-    // printf("Predicted Modulation Class: %lu with confidence %.2f%%\r\n", highest_prob_class, max_prob * 100.0f);
+    printf("Predicted Modulation Class: %lu with confidence %.2f%%\r\n", highest_prob_class, max_prob * 100.0f);
 
     while(1) {
         // Execution finished successfully. Hang or toggle a LED to visually indicate completion.
