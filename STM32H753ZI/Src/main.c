@@ -51,17 +51,23 @@ int _write(int file, char *ptr, int len) {
 int main(void) {
     stai_return_code status;
     
-    // 1. Allocate space for the model runtime context structure using the exact macro from network.h
-    static uint8_t network_ctx_buffer[STAI_NETWORK_CONTEXT_SIZE];
-    stai_network* network = (stai_network*)network_ctx_buffer;
+    // 1. Allocate input and output buffers using the correct generated EdgeAI 4.0 short-hand macros
+    static uint8_t input_buffer[STAI_NETWORK_IN_1_SIZE_BYTES] __attribute__((aligned(STAI_NETWORK_IN_1_ALIGNMENT)));
+    static uint8_t output_buffer[STAI_NETWORK_OUT_1_SIZE_BYTES] __attribute__((aligned(STAI_NETWORK_OUT_1_ALIGNMENT)));
 
-    // 2. Point to your weights array located in network_data.c
-    stai_ptr weights_buffer = (stai_ptr)g_network_weights_array;
+    // [Optional] Copy your validation signal data into the input buffer before running inference
+    // memcpy(input_buffer, rf_validation_signal, sizeof(rf_validation_signal));
 
-    // 3. Initialize the network object container
-    status = stai_network_init(network);
+    // 2. ST EdgeAI 4.0 expects arrays of raw stai_ptr (pointers) for inputs and outputs
+    stai_ptr input_tensors[STAI_NETWORK_IN_NUM] = { (stai_ptr)input_buffer };
+    stai_ptr output_tensors[STAI_NETWORK_OUT_NUM] = { (stai_ptr)output_buffer };
+
+    // 3. Run the model inference
+    // Notice the third argument: STAI_MODE_RECURRENT or STAI_MODE_CLASSIC depending on your configuration. 
+    // Usually, STAI_MODE_CLASSIC is default for standard feedforward inference.
+    status = stai_network_run(network, STAI_MODE_CLASSIC, input_tensors, STAI_NETWORK_IN_NUM, output_tensors, STAI_NETWORK_OUT_NUM);
     if (status != STAI_SUCCESS) {
-        // Initialization failed
+        // Inference execution failed
         while(1);
     }
 
