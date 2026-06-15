@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug STM32H753 (OpenOCD)",
+      "type": "cortex-debug",
+      "request": "launch",
+
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/Debug/STM32H753ZI.elf",
+
+      "servertype": "openocd",
+
+      "serverpath": "/home/owen/tools/xpack-openocd-0.12.0-4/bin/openocd",
+
+      "configFiles": [
+          "interface/stlink.cfg",
+          "target/stm32h7x.cfg"
+      ],
+
+      "gdbPath": "/home/owen/snap/code/246/.local/share/stm32cube/bundles/gnu-tools-for-stm32/14.3.1+st.2/bin/arm-none-eabi-gdb",
+
+      "runToEntryPoint": "main"
+    }
+  ]
+}
