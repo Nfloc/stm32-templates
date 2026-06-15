@@ -40,6 +40,13 @@ set(cpu_PARAMS
     # -mcpu, -mfloat, -mfloat-abi, ...
 )
 
+# Force the compiler to generate Thumb-2 instructions for the Cortex-M7
+set(CPU_FLAGS "-mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CPU_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPU_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CPU_FLAGS}")
+
 # Sources
 set(sources_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/Src/main.c
@@ -88,7 +95,9 @@ include("cmake/vscode_generated.cmake")
 
 # Link directories setup
 # Must be before executable is added
-link_directories(${CMAKE_PROJECT_NAME} ${link_DIRS})
+link_directories(${CMAKE_PROJECT_NAME} ${link_DIRS}
+/opt/ST/STEdgeAI/4.0/Middlewares/ST/AI/Lib/GCC/STM32H7/NetworkRuntime1200_CM7_GCC.a
+)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
@@ -117,7 +126,9 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add linked libraries
-target_link_libraries(${CMAKE_PROJECT_NAME} ${link_LIBS})
+target_link_libraries(${CMAKE_PROJECT_NAME} ${link_LIBS}
+/opt/ST/STEdgeAI/4.0/Middlewares/ST/AI/Lib/GCC/STM32H7/NetworkRuntime1200_CM7_GCC.a
+)
 
 # Compiler options
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
