@@ -15,11 +15,49 @@
  *
  ******************************************************************************
  */
-
+#include <stdio.h>
 #include <stdint.h>
 
-int main(void)
-{
-    /* Loop forever */
-	for(;;);
+// Core ST EdgeAI 4.0 runtime API
+#include "stai.h" 
+#include "network.h"
+#include "network_data.h"
+
+static uint8_t activations[STAI_NETWORK_ACTIVATION_1_SIZE_BYTES] __attribute__((aligned(STAI_NETWORK_ACTIVATION_1_ALIGNMENT)));
+int main(void) {
+    stai_return_code status;
+    
+    // 1. Allocate space for the model runtime context structure using the exact macro from network.h
+    static uint8_t network_ctx_buffer[STAI_NETWORK_CONTEXT_SIZE];
+    stai_network* network = (stai_network*)network_ctx_buffer;
+
+    // 2. Point to your weights array located in network_data.c
+    stai_ptr weights_buffer = (stai_ptr)g_network_weights_array;
+
+    // 3. Initialize the network object container
+    status = stai_network_init(network);
+    if (status != STAI_SUCCESS) {
+        // Initialization failed
+        while(1);
+    }
+
+    // 4. Bind your model weights to the initialized network context
+    status = stai_network_set_weights(network, &weights_buffer, STAI_NETWORK_WEIGHTS_NUM);
+    if (status != STAI_SUCCESS) {
+        // Weights binding failed
+        while(1);
+    }
+
+    // 5. Setup your runtime RAM activation buffers using the exact size macro (39232 bytes)
+    static uint8_t activation_buffer[STAI_NETWORK_ACTIVATIONS_SIZE_BYTES] __attribute__((aligned(STAI_NETWORK_CONTEXT_ALIGNMENT)));
+    stai_ptr act_ptr = (stai_ptr)activation_buffer;
+    
+    status = stai_network_set_activations(network, &act_ptr, STAI_NETWORK_ACTIVATIONS_NUM);
+    if (status != STAI_SUCCESS) {
+        while(1);
+    }
+
+    while (1) {
+        // Your main inference and pipeline code can now run here safely
+    }
 }
