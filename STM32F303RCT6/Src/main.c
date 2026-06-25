@@ -23,7 +23,7 @@
 #include "network.h"
 #include "network_data.h"
 
-uint8_t activations[39292];
+static uint8_t activations[STAI_NETWORK_ACTIVATION_1_SIZE_BYTES] __attribute__((aligned(STAI_NETWORK_ACTIVATION_1_ALIGNMENT)));
 int main(void) {
     stai_return_code status;
     
